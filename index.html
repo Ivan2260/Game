@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Password Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+  <div class="bg-gray-800 p-8 rounded-xl shadow-lg max-w-sm w-full">
+    <h1 class="text-2xl font-bold mb-4 text-center">🔐 Password Generator</h1>
+    
+    <div class="mb-4">
+      <label class="block mb-1">Password Length: <span id="lengthVal" class="font-bold">12</span></label>
+      <input type="range" id="length" min="4" max="32" value="12" class="w-full">
+    </div>
+
+    <div class="space-y-2 mb-4">
+      <label class="block"><input type="checkbox" id="uppercase" checked> Include Uppercase</label>
+      <label class="block"><input type="checkbox" id="lowercase" checked> Include Lowercase</label>
+      <label class="block"><input type="checkbox" id="numbers" checked> Include Numbers</label>
+      <label class="block"><input type="checkbox" id="symbols"> Include Symbols</label>
+    </div>
+
+    <button id="generate" class="w-full bg-blue-600 hover:bg-blue-700 transition rounded px-4 py-2 font-bold mb-4">Generate Password</button>
+
+    <div class="bg-gray-700 p-2 rounded flex items-center justify-between">
+      <input type="text" id="password" class="bg-transparent w-full outline-none" readonly>
+      <button id="copy" class="ml-2 text-sm text-blue-400 hover:text-blue-600">Copy</button>
+    </div>
+  </div>
+
+  <script>
+    const lengthEl = document.getElementById("length");
+    const lengthVal = document.getElementById("lengthVal");
+    const passwordEl = document.getElementById("password");
+    const copyBtn = document.getElementById("copy");
+
+    const getRandomChar = {
+      lower: () => String.fromCharCode(Math.floor(Math.random() * 26) + 97),
+      upper: () => String.fromCharCode(Math.floor(Math.random() * 26) + 65),
+      number: () => String.fromCharCode(Math.floor(Math.random() * 10) + 48),
+      symbol: () => "!@#$%^&*()_+{}[]<>/.,~".charAt(Math.floor(Math.random() * 20))
+    };
+
+    document.getElementById("generate").addEventListener("click", () => {
+      const length = +lengthEl.value;
+      const hasLower = document.getElementById("lowercase").checked;
+      const hasUpper = document.getElementById("uppercase").checked;
+      const hasNumber = document.getElementById("numbers").checked;
+      const hasSymbol = document.getElementById("symbols").checked;
+
+      const types = [];
+      if (hasLower) types.push("lower");
+      if (hasUpper) types.push("upper");
+      if (hasNumber) types.push("number");
+      if (hasSymbol) types.push("symbol");
+
+      if (types.length === 0) {
+        passwordEl.value = "Select at least one type!";
+        return;
+      }
+
+      let generated = "";
+      while (generated.length < length) {
+        const type = types[Math.floor(Math.random() * types.length)];
+        generated += getRandomChar[type]();
+      }
+
+      passwordEl.value = generated;
+    });
+
+    lengthEl.addEventListener("input", () => {
+      lengthVal.textContent = lengthEl.value;
+    });
+
+    copyBtn.addEventListener("click", () => {
+      const password = passwordEl.value;
+      if (!password || password.startsWith("Select")) return;
+      navigator.clipboard.writeText(password);
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => copyBtn.textContent = "Copy", 1500);
+    });
+  </script>
+</body>
+</html>
